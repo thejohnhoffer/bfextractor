@@ -14,16 +14,16 @@ services:
       - /data:/tmp/aws
     command:
       # Import UUID and also the directory name within /data
-      - importUuid
+      - daa4fc5e-e3de-4d5a-b744-6672e784d2df
       # Location of entrypoint within importUuid directory
-      - path/to/entrypoint/example.dv
+      - ashlar_examples/BP40.ome.tif
       # Identify for the Bio-Formats Reader
-      - loci.formats.in.DeltavisionReader
+      - loci.formats.in.OMETiffReader
       # Reader Software Name
       - Bio-Formats
       # Reader Software Version
       - UNKNOWN
       # Bucket in which to write tiles
-      - jmuhlich-bfextractor-test
+      - thejohnhoffer-bfextractor-test
       # BFU UUID
-      - bfuUuid
+      - ca6d604a-3220-47e5-94c6-277d99c57b45
