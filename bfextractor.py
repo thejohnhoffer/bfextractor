@@ -93,8 +93,9 @@ class ProgressSubscriber(s3transfer.subscribers.BaseSubscriber):
     def on_done(self, future, **kwargs):
         print(f'Upload completed: {self.subkey}')
 
-# The wrapper for Field provided by jnius only includes a few methods, and 'get'
-# is not one of them. We'll monkey-patch it in here.
+
+# The wrapper for Field provided by jnius only includes a few methods,
+# and 'get' is not one of them. We'll monkey-patch it in here.
 jnius.reflect.Field.get = jnius.reflect.JavaMethod(
     '(Ljava/lang/Object;)Ljava/lang/Object;'
 )
@@ -186,6 +187,7 @@ def mk_name(file_path, n):
         suffix = ''
     return stem[:IMAGE_NAME_LENGTH - len(suffix)] + suffix
 
+
 @profile
 def main():
     with s3transfer.manager.TransferManager(s3) as transfer_manager:
@@ -193,62 +195,128 @@ def main():
         upload_futures = []
         image_id_map = {}
         images = []
+        series = 0
+        reader.setSeries(series)
+        img_id = str(uuid.uuid4())
+        old_xml_id = metadata.getImageID(series)
+        image_id_map[old_xml_id] = f'Image:{img_id}'
+        print(f'Allocated ID for series {series}: {img_id}')
 
-        for series in range(series_count):
+        # TODO Better way to get number of levels
+        max_level = 0
+        (z, c, t) = (0, 0, 0)
 
-            reader.setSeries(series)
-            rc = range(reader.sizeC)
-            rz = range(reader.sizeZ)
-            rt = range(reader.sizeT)
-            img_id = str(uuid.uuid4())
-            old_xml_id = metadata.getImageID(series)
-            image_id_map[old_xml_id] = f'Image:{img_id}'
-            print(f'Allocated ID for series {series}: {img_id}')
+        c = 0
+        print(f'series {series}: {c}, {z}, {t}')
 
-            # TODO Better way to get number of levels
-            max_level = 0
-            for c, z, t in itertools.product(rc, rz, rt):
+        index = reader.getIndex(z, c, t)
+        byte_array = reader.openBytes(index)
+        # FIXME BioFormats seems to return the same size for all series,
+        # at least for Metamorph datasets with one different-sized image.
+        # Is this a broad BioFormats issue or just that reader?
+        shape = (reader.sizeY, reader.sizeX)
+        img = np.frombuffer(byte_array.tostring(), dtype=dtype)
+        img = img.reshape(shape)
 
-                print(f'series {series}: {c}, {z}, {t}')
+        for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
 
-                index = reader.getIndex(z, c, t)
-                byte_array = reader.openBytes(index)
-                # FIXME BioFormats seems to return the same size for all series,
-                # at least for Metamorph datasets with one different-sized image.
-                # Is this a broad BioFormats issue or just that reader?
-                shape = (reader.sizeY, reader.sizeX)
-                img = np.frombuffer(byte_array.tostring(), dtype=dtype)
-                img = img.reshape(shape)
+            if level > max_level:
+                max_level = level
 
-                for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+            filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+            buf = io.BytesIO()
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    'ignore', r'.* is a low contrast image', UserWarning,
+                    '^skimage\.io'
+                )
+                skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+            buf.seek(0)
 
-                    if level > max_level:
-                        max_level = level
+            tile_key = str(pathlib.Path(img_id) / filename)
+            upload_args = dict(ContentType=tile_content_type)
 
-                    filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
-                    buf = io.BytesIO()
-                    with warnings.catch_warnings():
-                        warnings.filterwarnings(
-                            'ignore', r'.* is a low contrast image', UserWarning,
-                            '^skimage\.io'
-                        )
-                        skimage.io.imsave(buf, tile_img, format_str=tile_ext)
-                    buf.seek(0)
+            future = transfer_manager.upload(
+                buf, bucket, tile_key, extra_args=upload_args
+            )
+            upload_futures.append(future)
 
-                    tile_key = str(pathlib.Path(img_id) / filename)
-                    upload_args = dict(ContentType=tile_content_type)
+        c = 1
+        print(f'series {series}: {c}, {z}, {t}')
 
-                    future = transfer_manager.upload(
-                        buf, bucket, tile_key, extra_args=upload_args
-                    )
-                    upload_futures.append(future)
+        index = reader.getIndex(z, c, t)
+        byte_array = reader.openBytes(index)
+        # FIXME BioFormats seems to return the same size for all series,
+        # at least for Metamorph datasets with one different-sized image.
+        # Is this a broad BioFormats issue or just that reader?
+        shape = (reader.sizeY, reader.sizeX)
+        img = np.frombuffer(byte_array.tostring(), dtype=dtype)
+        img = img.reshape(shape)
 
-            # Add this new image to the list to be attached to this Fileset
-            images.append({
-                'uuid': img_id,
-                'name': mk_name(file_path, series),
-                'pyramid_levels': max_level + 1
-            })
+        for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+
+            if level > max_level:
+                max_level = level
+
+            filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+            buf = io.BytesIO()
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    'ignore', r'.* is a low contrast image', UserWarning,
+                    '^skimage\.io'
+                )
+                skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+            buf.seek(0)
+
+            tile_key = str(pathlib.Path(img_id) / filename)
+            upload_args = dict(ContentType=tile_content_type)
+
+            future = transfer_manager.upload(
+                buf, bucket, tile_key, extra_args=upload_args
+            )
+            upload_futures.append(future)
+  
+        c = 2
+        print(f'series {series}: {c}, {z}, {t}')
+
+        index = reader.getIndex(z, c, t)
+        byte_array = reader.openBytes(index)
+        # FIXME BioFormats seems to return the same size for all series,
+        # at least for Metamorph datasets with one different-sized image.
+        # Is this a broad BioFormats issue or just that reader?
+        shape = (reader.sizeY, reader.sizeX)
+        img = np.frombuffer(byte_array.tostring(), dtype=dtype)
+        img = img.reshape(shape)
+
+        for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+
+            if level > max_level:
+                max_level = level
+
+            filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+            buf = io.BytesIO()
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    'ignore', r'.* is a low contrast image', UserWarning,
+                    '^skimage\.io'
+                )
+                skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+            buf.seek(0)
+
+            tile_key = str(pathlib.Path(img_id) / filename)
+            upload_args = dict(ContentType=tile_content_type)
+
+            future = transfer_manager.upload(
+                buf, bucket, tile_key, extra_args=upload_args
+            )
+            upload_futures.append(future)
+
+        # Add this new image to the list to be attached to this Fileset
+        images.append({
+            'uuid': img_id,
+            'name': mk_name(file_path, series),
+            'pyramid_levels': max_level + 1
+        })
 
         xml_key = str(fileset_uuid / 'metadata.xml')
         xml_bytes = transform_xml(metadata, image_id_map)
