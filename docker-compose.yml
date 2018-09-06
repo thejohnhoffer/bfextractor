@@ -26,4 +26,4 @@ services:
       # Bucket in which to write tiles
       - thejohnhoffer-bfextractor-test
       # BFU UUID
-      - ca6d604a-3220-47e5-94c6-277d99c57b45
+      - abc004

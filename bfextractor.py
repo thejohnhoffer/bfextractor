@@ -1,3 +1,4 @@
+from memory_profiler import profile
 import warnings
 import sys
 import os
@@ -27,7 +28,8 @@ def tile(img, n):
 
 def build_pyramid(img, n):
     max_layer = max(np.ceil(np.log2(np.array(img.shape) / n)))
-    pyramid = skimage.transform.pyramid_gaussian(img, max_layer=max_layer)
+    pyramid = skimage.transform.pyramid_gaussian(img, max_layer=max_layer,
+                                                 multichannel=True)
     for layer, layer_img in enumerate(pyramid):
         for yi, xi, tile_img in tile(layer_img, n):
             with warnings.catch_warnings():
@@ -184,91 +186,96 @@ def mk_name(file_path, n):
         suffix = ''
     return stem[:IMAGE_NAME_LENGTH - len(suffix)] + suffix
 
+@profile
+def main():
+    with s3transfer.manager.TransferManager(s3) as transfer_manager:
 
-with s3transfer.manager.TransferManager(s3) as transfer_manager:
+        upload_futures = []
+        image_id_map = {}
+        images = []
 
-    upload_futures = []
-    image_id_map = {}
-    images = []
+        for series in range(series_count):
 
-    for series in range(series_count):
+            reader.setSeries(series)
+            rc = range(reader.sizeC)
+            rz = range(reader.sizeZ)
+            rt = range(reader.sizeT)
+            img_id = str(uuid.uuid4())
+            old_xml_id = metadata.getImageID(series)
+            image_id_map[old_xml_id] = f'Image:{img_id}'
+            print(f'Allocated ID for series {series}: {img_id}')
 
-        reader.setSeries(series)
-        rc = range(reader.sizeC)
-        rz = range(reader.sizeZ)
-        rt = range(reader.sizeT)
-        img_id = str(uuid.uuid4())
-        old_xml_id = metadata.getImageID(series)
-        image_id_map[old_xml_id] = f'Image:{img_id}'
-        print(f'Allocated ID for series {series}: {img_id}')
+            # TODO Better way to get number of levels
+            max_level = 0
+            for c, z, t in itertools.product(rc, rz, rt):
 
-        # TODO Better way to get number of levels
-        max_level = 0
+                print(f'series {series}: {c}, {z}, {t}')
 
-        for c, z, t in itertools.product(rc, rz, rt):
+                index = reader.getIndex(z, c, t)
+                byte_array = reader.openBytes(index)
+                # FIXME BioFormats seems to return the same size for all series,
+                # at least for Metamorph datasets with one different-sized image.
+                # Is this a broad BioFormats issue or just that reader?
+                shape = (reader.sizeY, reader.sizeX)
+                img = np.frombuffer(byte_array.tostring(), dtype=dtype)
+                img = img.reshape(shape)
 
-            index = reader.getIndex(z, c, t)
-            byte_array = reader.openBytes(index)
-            # FIXME BioFormats seems to return the same size for all series,
-            # at least for Metamorph datasets with one different-sized image.
-            # Is this a broad BioFormats issue or just that reader?
-            shape = (reader.sizeY, reader.sizeX)
-            img = np.frombuffer(byte_array.tostring(), dtype=dtype)
-            img = img.reshape(shape)
+                for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
 
-            for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+                    if level > max_level:
+                        max_level = level
 
-                if level > max_level:
-                    max_level = level
+                    filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+                    buf = io.BytesIO()
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings(
+                            'ignore', r'.* is a low contrast image', UserWarning,
+                            '^skimage\.io'
+                        )
+                        skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+                    buf.seek(0)
 
-                filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
-                buf = io.BytesIO()
-                with warnings.catch_warnings():
-                    warnings.filterwarnings(
-                        'ignore', r'.* is a low contrast image', UserWarning,
-                        '^skimage\.io'
+                    tile_key = str(pathlib.Path(img_id) / filename)
+                    upload_args = dict(ContentType=tile_content_type)
+
+                    future = transfer_manager.upload(
+                        buf, bucket, tile_key, extra_args=upload_args
                     )
-                    skimage.io.imsave(buf, tile_img, format_str=tile_ext)
-                buf.seek(0)
+                    upload_futures.append(future)
 
-                tile_key = str(pathlib.Path(img_id) / filename)
-                upload_args = dict(ContentType=tile_content_type)
+            # Add this new image to the list to be attached to this Fileset
+            images.append({
+                'uuid': img_id,
+                'name': mk_name(file_path, series),
+                'pyramid_levels': max_level + 1
+            })
 
-                future = transfer_manager.upload(
-                    buf, bucket, tile_key, extra_args=upload_args
-                )
-                upload_futures.append(future)
-
-        # Add this new image to the list to be attached to this Fileset
-        images.append({
-            'uuid': img_id,
-            'name': mk_name(file_path, series),
-            'pyramid_levels': max_level + 1
-        })
-
-    xml_key = str(fileset_uuid / 'metadata.xml')
-    xml_bytes = transform_xml(metadata, image_id_map)
-    xml_buf = io.BytesIO(xml_bytes)
-    upload_args = dict(ContentType='application/xml')
-    future = transfer_manager.upload(
-        xml_buf, bucket, xml_key, extra_args=upload_args
-    )
-    upload_futures.append(future)
-
-    for future in upload_futures:
-        future.result()
-
-    print('Completing Fileset {} and registering images: {}'.format(
-        fileset_uuid,
-        ', '.join([image['uuid'] for image in images])
-    ))
-
-    if not debug:
-
-        lmb.invoke(
-            FunctionName=set_fileset_complete_arn,
-            Payload=str.encode(json.dumps({
-                'fileset_uuid': str(fileset_uuid),
-                'images': images
-            }))
+        xml_key = str(fileset_uuid / 'metadata.xml')
+        xml_bytes = transform_xml(metadata, image_id_map)
+        xml_buf = io.BytesIO(xml_bytes)
+        upload_args = dict(ContentType='application/xml')
+        future = transfer_manager.upload(
+            xml_buf, bucket, xml_key, extra_args=upload_args
         )
+        upload_futures.append(future)
+
+        for future in upload_futures:
+            future.result()
+
+        print('Completing Fileset {} and registering images: {}'.format(
+            fileset_uuid,
+            ', '.join([image['uuid'] for image in images])
+        ))
+
+        if not debug:
+
+            lmb.invoke(
+                FunctionName=set_fileset_complete_arn,
+                Payload=str.encode(json.dumps({
+                    'fileset_uuid': str(fileset_uuid),
+                    'images': images
+                }))
+            )
+
+
+main()

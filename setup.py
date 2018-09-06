@@ -1,1 +1,1 @@
-['boto3', 'pyjnius', 'scikit-image']
+['boto3', 'pyjnius', 'scikit-image', 'objgraph']
