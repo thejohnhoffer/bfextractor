@@ -188,6 +188,33 @@ def mk_name(file_path, n):
     return stem[:IMAGE_NAME_LENGTH - len(suffix)] + suffix
 
 
+def handle_level(img_id, transfer_manager, upload_futures, max_level,
+                 ctz, tile_args):
+
+    c, t, z = ctz
+    level, ty, tx, tile_img = tile_args
+    if level > max_level:
+        max_level = level
+
+    filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+    buf = io.BytesIO()
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            'ignore', r'.* is a low contrast image', UserWarning,
+            '^skimage\.io'
+        )
+        skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+    buf.seek(0)
+
+    tile_key = str(pathlib.Path(img_id) / filename)
+    upload_args = dict(ContentType=tile_content_type)
+
+    future = transfer_manager.upload(
+        buf, bucket, tile_key, extra_args=upload_args
+    )
+    upload_futures.append(future)
+
+
 @profile
 def main():
     with s3transfer.manager.TransferManager(s3) as transfer_manager:
@@ -204,9 +231,10 @@ def main():
 
         # TODO Better way to get number of levels
         max_level = 0
-        (z, c, t) = (0, 0, 0)
 
-        c = 0
+        ctz = (0, 0, 0)
+        c, t, z = ctz
+
         print(f'series {series}: {c}, {z}, {t}')
 
         index = reader.getIndex(z, c, t)
@@ -218,30 +246,1675 @@ def main():
         img = np.frombuffer(byte_array.tostring(), dtype=dtype)
         img = img.reshape(shape)
 
-        for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+        all_tiles = build_pyramid(img, TILE_SIZE)
 
-            if level > max_level:
-                max_level = level
+        print('1')
+        tile_args = next(all_tiles)
 
-            filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
-            buf = io.BytesIO()
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    'ignore', r'.* is a low contrast image', UserWarning,
-                    '^skimage\.io'
-                )
-                skimage.io.imsave(buf, tile_img, format_str=tile_ext)
-            buf.seek(0)
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
 
-            tile_key = str(pathlib.Path(img_id) / filename)
-            upload_args = dict(ContentType=tile_content_type)
-
-            future = transfer_manager.upload(
-                buf, bucket, tile_key, extra_args=upload_args
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
             )
-            upload_futures.append(future)
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
 
-        c = 1
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('2')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('3')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('4')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('5')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('6')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('7')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('8')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('9')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('10')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('11')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('12')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('13')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('14')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('15')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('16')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('17')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('18')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('19')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('20')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('21')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('22')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('23')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('24')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('25')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('26')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('27')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('28')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('29')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('30')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('31')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('32')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('33')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('34')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('35')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('36')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('37')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('38')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('39')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('40')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('41')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('42')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('43')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('44')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('45')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('46')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('47')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('48')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('49')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('50')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('51')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('52')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('53')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('54')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('55')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('56')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('57')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('58')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('59')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('60')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('61')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('62')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('63')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('64')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        ctz = (1, 0, 0)
+        c, t, z = ctz
+
         print(f'series {series}: {c}, {z}, {t}')
 
         index = reader.getIndex(z, c, t)
@@ -253,30 +1926,1675 @@ def main():
         img = np.frombuffer(byte_array.tostring(), dtype=dtype)
         img = img.reshape(shape)
 
-        for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+        all_tiles = build_pyramid(img, TILE_SIZE)
 
-            if level > max_level:
-                max_level = level
+        print('1')
+        tile_args = next(all_tiles)
 
-            filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
-            buf = io.BytesIO()
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    'ignore', r'.* is a low contrast image', UserWarning,
-                    '^skimage\.io'
-                )
-                skimage.io.imsave(buf, tile_img, format_str=tile_ext)
-            buf.seek(0)
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
 
-            tile_key = str(pathlib.Path(img_id) / filename)
-            upload_args = dict(ContentType=tile_content_type)
-
-            future = transfer_manager.upload(
-                buf, bucket, tile_key, extra_args=upload_args
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
             )
-            upload_futures.append(future)
-  
-        c = 2
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('2')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('3')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('4')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('5')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('6')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('7')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('8')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('9')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('10')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('11')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('12')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('13')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('14')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('15')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('16')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('17')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('18')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('19')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('20')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('21')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('22')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('23')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('24')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('25')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('26')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('27')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('28')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('29')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('30')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('31')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('32')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('33')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('34')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('35')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('36')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('37')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('38')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('39')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('40')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('41')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('42')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('43')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('44')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('45')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('46')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('47')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('48')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('49')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('50')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('51')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('52')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('53')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('54')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('55')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('56')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('57')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('58')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('59')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('60')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('61')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('62')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('63')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('64')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        ctz = (2, 0, 0)
+        c, t, z = ctz
+
         print(f'series {series}: {c}, {z}, {t}')
 
         index = reader.getIndex(z, c, t)
@@ -288,28 +3606,1671 @@ def main():
         img = np.frombuffer(byte_array.tostring(), dtype=dtype)
         img = img.reshape(shape)
 
-        for level, ty, tx, tile_img in build_pyramid(img, TILE_SIZE):
+        all_tiles = build_pyramid(img, TILE_SIZE)
 
-            if level > max_level:
-                max_level = level
+        print('1')
+        tile_args = next(all_tiles)
 
-            filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
-            buf = io.BytesIO()
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    'ignore', r'.* is a low contrast image', UserWarning,
-                    '^skimage\.io'
-                )
-                skimage.io.imsave(buf, tile_img, format_str=tile_ext)
-            buf.seek(0)
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
 
-            tile_key = str(pathlib.Path(img_id) / filename)
-            upload_args = dict(ContentType=tile_content_type)
-
-            future = transfer_manager.upload(
-                buf, bucket, tile_key, extra_args=upload_args
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
             )
-            upload_futures.append(future)
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('2')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('3')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('4')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('5')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('6')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('7')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('8')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('9')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('10')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('11')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('12')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('13')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('14')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('15')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('16')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('17')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('18')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('19')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('20')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('21')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('22')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('23')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('24')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('25')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('26')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('27')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('28')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('29')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('30')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('31')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('32')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('33')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('34')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('35')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('36')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('37')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('38')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('39')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('40')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('41')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('42')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('43')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('44')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('45')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('46')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('47')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('48')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('49')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('50')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('51')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('52')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('53')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('54')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('55')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('56')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('57')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('58')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('59')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('60')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('61')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('62')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('63')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
+
+        print('64')
+        tile_args = next(all_tiles)
+
+        c, t, z = ctz
+        level, ty, tx, tile_img = tile_args
+        if level > max_level:
+            max_level = level
+
+        filename = f'C{c}-T{t}-Z{z}-L{level}-Y{ty}-X{tx}.{tile_ext}'
+        buf = io.BytesIO()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                'ignore', r'.* is a low contrast image', UserWarning,
+                '^skimage.io'
+            )
+            skimage.io.imsave(buf, tile_img, format_str=tile_ext)
+        buf.seek(0)
+
+        tile_key = str(pathlib.Path(img_id) / filename)
+        upload_args = dict(ContentType=tile_content_type)
+
+        future = transfer_manager.upload(
+            buf, bucket, tile_key, extra_args=upload_args
+        )
+        upload_futures.append(future)
 
         # Add this new image to the list to be attached to this Fileset
         images.append({
